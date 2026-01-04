@@ -14,19 +14,13 @@ function renderSubtaskWithTimer(subtask, isFocus = false, index = 0) {
     timeDisplay = formatTime(timer.totalElapsed);
   }
   
-  // Determine button text and action
-  let buttonText = 'start';
-  let buttonAction = 'start';
-  let buttonClass = 'subtask-timer-btn';
+  // Determine button: only START or END (no restart)
+  const buttonText = isRunning ? 'end' : 'start';
+  const buttonAction = isRunning ? 'end' : 'start';
+  const buttonClass = isRunning ? 'subtask-timer-btn running' : 'subtask-timer-btn';
   
-  if (isRunning) {
-    buttonText = 'end';
-    buttonAction = 'end';
-    buttonClass += ' running';
-  } else if (hasStarted) {
-    buttonText = 'restart';
-    buttonAction = 'restart';
-  }
+  // Disable button if another timer is running (controlled by global state)
+  const isDisabled = !isRunning && window.activeTimerRunning && window.activeTimerId !== subtask.id;
   
   const cssClass = isFocus ? 'focus-subtask' : 'subtask-item';
   const completedClass = subtask.completed ? 'completed' : '';
@@ -38,7 +32,7 @@ function renderSubtaskWithTimer(subtask, isFocus = false, index = 0) {
       ${!subtask.completed ? `
         <div class="subtask-timer-controls">
           ${timeDisplay ? `<span class="subtask-timer-display" data-timer-id="${subtask.id}">${timeDisplay}</span>` : ''}
-          <button class="${buttonClass}" data-id="${subtask.id}" data-action="${buttonAction}">${buttonText}</button>
+          <button class="${buttonClass}" data-id="${subtask.id}" data-action="${buttonAction}" ${isDisabled ? 'disabled' : ''}>${buttonText}</button>
         </div>
       ` : ''}
       <button class="subtask-delete-btn" data-id="${subtask.id}">⊗</button>
@@ -73,6 +67,12 @@ export async function renderOneTask() {
   // Hide add task button when main task exists
   addTaskInline.style.display = 'none';
 
+  // Check if any timer is running for global state
+  const hasRunningTimer = allSubtasks.some(st => st.timer && st.timer.isRunning);
+  const runningTimer = allSubtasks.find(st => st.timer && st.timer.isRunning);
+  window.activeTimerRunning = hasRunningTimer;
+  window.activeTimerId = runningTimer ? runningTimer.id : null;
+
   // Separate completed and uncompleted subtasks
   const uncompletedSubtasks = allSubtasks.filter(st => !st.completed);
   const completedSubtasks = allSubtasks.filter(st => st.completed);
@@ -89,11 +89,18 @@ export async function renderOneTask() {
     </div>
   `;
 
-  // Add "Add subtask" section FIRST
+  // Show hint only if there are 0 subtasks
+  if (allSubtasks.length === 0) {
+    html += `<div class="subtask-hint">add subtask</div>`;
+  }
+
+  // Add "+ Add a subtask" inline section
   html += `
-    <div class="add-subtask">
-      <input type="text" id="subtask-input" placeholder="Add a subtask..." />
-      <button id="add-subtask-btn">Add</button>
+    <div class="add-subtask-inline" id="add-subtask-inline">
+      <span class="plus-icon">+</span>
+      <input type="text" id="subtask-input-inline" placeholder="Add a subtask" style="display: none;" />
+      <span class="add-task-text" id="add-subtask-text">Add a subtask</span>
+      <button class="save-inline-btn" id="save-subtask-btn" style="display: none;">Save</button>
     </div>
   `;
 
@@ -138,19 +145,93 @@ export async function renderOneTask() {
 
   taskList.innerHTML = html;
 
+  // Setup inline add subtask
+  setupInlineAddSubtask();
+
   // Setup drag and drop for subtasks
   setupSubtaskDragDrop();
+}
 
-  // Re-attach event listener for Enter key on subtask input
-  const subtaskInput = document.getElementById('subtask-input');
-  if (subtaskInput) {
-    subtaskInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        const addBtn = document.getElementById('add-subtask-btn');
-        if (addBtn) addBtn.click();
+function setupInlineAddSubtask() {
+  const container = document.getElementById('add-subtask-inline');
+  if (!container) return;
+
+  const plusIcon = container.querySelector('.plus-icon');
+  const addText = document.getElementById('add-subtask-text');
+  const input = document.getElementById('subtask-input-inline');
+  const saveBtn = document.getElementById('save-subtask-btn');
+
+  const showInput = () => {
+    addText.style.display = 'none';
+    input.style.display = 'block';
+    saveBtn.style.display = 'block';
+    input.focus();
+  };
+
+  const hideInput = () => {
+    addText.style.display = 'block';
+    input.style.display = 'none';
+    saveBtn.style.display = 'none';
+    input.value = '';
+  };
+
+  plusIcon.addEventListener('click', showInput);
+  addText.addEventListener('click', showInput);
+  saveBtn.addEventListener('click', async () => {
+    await handleAddSubtaskInline(input.value);
+    hideInput();
+  });
+
+  input.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      await handleAddSubtaskInline(input.value);
+      hideInput();
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      if (document.activeElement !== saveBtn) {
+        hideInput();
       }
-    });
+    }, 150);
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      hideInput();
+    }
+  });
+}
+
+async function handleAddSubtaskInline(text) {
+  const trimmedText = text.trim();
+  if (!trimmedText) return;
+
+  const result = await chrome.storage.local.get(['oneTask', 'subtasks']);
+  
+  if (!result.oneTask) {
+    alert('Please add a main task first!');
+    return;
   }
+
+  const subtasks = result.subtasks || [];
+  const newSubtask = {
+    id: Date.now().toString(),
+    text: trimmedText,
+    completed: false,
+    createdAt: new Date().toISOString(),
+    timer: {
+      isRunning: false,
+      startTime: null,
+      totalElapsed: 0
+    }
+  };
+
+  subtasks.push(newSubtask);
+  await chrome.storage.local.set({ subtasks });
+  
+  renderOneTask();
 }
 
 // Render today's tasks

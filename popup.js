@@ -48,16 +48,12 @@ function setupEventListeners() {
       const id = e.target.dataset.id;
       await deleteSubtask(id);
     }
-    // Add subtask button
-    if (e.target.id === 'add-subtask-btn') {
-      await handleAddSubtask();
-    }
-    // Timer controls
-    if (e.target.classList.contains('subtask-timer-btn')) {
+    // Timer controls - only START or END
+    if (e.target.classList.contains('subtask-timer-btn') && !e.target.disabled) {
       const id = e.target.dataset.id;
       const action = e.target.dataset.action;
       
-      if (action === 'start' || action === 'restart') {
+      if (action === 'start') {
         await startTimer(id);
       } else if (action === 'end') {
         await stopTimer(id);

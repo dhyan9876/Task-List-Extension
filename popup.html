@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple To-Do Focus</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>Task List</h1>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="one-task">1 Task ONLY</button>
+      <button class="tab-btn" data-tab="today">Today's Task</button>
+      <button class="tab-btn" data-tab="tomorrow">Tomorrow's Task</button>
+      <button class="tab-btn" data-tab="others">Others</button>
+    </div>
+
+    <!-- 1 Task Tab -->
+    <div class="tab-content active" id="one-task-tab">
+      <div class="add-task-inline" id="add-task-inline">
+        <span class="plus-icon">+</span>
+        <input type="text" id="task-input-inline" placeholder="Add task here" style="display: none;" />
+        <span class="add-task-text" id="add-task-text">Add task here</span>
+        <button class="save-inline-btn" id="save-task-btn" style="display: none;">Save</button>
+      </div>
+      <div id="one-task-list" class="todo-list"></div>
+    </div>
+
+    <!-- Today's Task Tab -->
+    <div class="tab-content" id="today-tab">
+      <div class="add-task-inline" id="add-task-inline-today">
+        <span class="plus-icon">+</span>
+        <input type="text" id="task-input-inline-today" placeholder="Add task here" style="display: none;" />
+        <span class="add-task-text" id="add-task-text-today">Add task here</span>
+        <button class="save-inline-btn" id="save-task-btn-today" style="display: none;">Save</button>
+      </div>
+      <div id="today-list" class="todo-list"></div>
+    </div>
+
+    <!-- Tomorrow's Task Tab -->
+    <div class="tab-content" id="tomorrow-tab">
+      <div class="add-task-inline" id="add-task-inline-tomorrow">
+        <span class="plus-icon">+</span>
+        <input type="text" id="task-input-inline-tomorrow" placeholder="Add task here" style="display: none;" />
+        <span class="add-task-text" id="add-task-text-tomorrow">Add task here</span>
+        <button class="save-inline-btn" id="save-task-btn-tomorrow" style="display: none;">Save</button>
+      </div>
+      <div id="tomorrow-list" class="todo-list"></div>
+    </div>
+
+    <!-- Others Tab -->
+    <div class="tab-content" id="others-tab">
+      <div class="add-task-inline" id="add-task-inline-others">
+        <span class="plus-icon">+</span>
+        <input type="text" id="task-input-inline-others" placeholder="Add task here" style="display: none;" />
+        <span class="add-task-text" id="add-task-text-others">Add task here</span>
+        <button class="save-inline-btn" id="save-task-btn-others" style="display: none;">Save</button>
+      </div>
+      <div id="others-list" class="todo-list"></div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -18,54 +18,33 @@ body {
   height: 100%;
 }
 
-.tabs {
-  display: flex;
+.single-tab {
   background: #0d1a1a;
   border-bottom: 2px solid #1a3d2a;
 }
 
-.tab-btn {
-  flex: 1;
-  padding: 12px 8px;
-  background: none;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: #8a9a8a;
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tab-btn:hover {
-  background: rgba(0, 209, 0, 0.05);
-  color: #ffffff;
-}
-
-.tab-btn.active {
+.tab-header {
+  padding: 14px 16px;
   color: #00D100;
-  border-bottom-color: #00D100;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 .tab-content {
   display: none;
-  flex: 1;
-  padding: 0;
-  overflow-y: auto;
-  min-height: 320px;
-}
-
-.tab-content.active {
-  display: block;
 }
 
 .add-task-inline {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 12px 1px;
   background: transparent;
   transition: background 0.2s;
+  margin-bottom: 4px;
 }
 
 .add-task-inline:hover {
@@ -122,17 +101,17 @@ body {
   display: none;
 }
 
-.todo-list {
+.task-list {
   display: block;
   padding: 0;
 }
 
-.todo-item {
+.task-item {
   background: #1a3d2a;
   border: 1px solid #2a5d3a;
   border-radius: 4px;
-  padding: 6px 12px;
-  margin: 0 16px 4px 16px;
+  padding: 2px 1px 2px 0.5px;
+  margin: 0 1px 4px 1px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -140,20 +119,51 @@ body {
   cursor: move;
 }
 
-.todo-item:hover {
+.task-item:hover {
   border-color: #3a7d4a;
   background: rgba(26, 61, 42, 0.8);
 }
 
-.todo-item.dragging {
+.task-item.active {
+  border: 1px solid #00D100;
+  box-shadow: 0 0 4px rgba(0, 209, 0, 0.3);
+}
+
+.task-item.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.task-item.locked .task-checkbox {
+  cursor: not-allowed;
   opacity: 0.5;
 }
 
-.todo-item-content {
+.task-item-content {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
   flex: 1;
+}
+
+.pin-icon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6a7a6a;
+  font-size: 14px;
+  transition: all 0.2s;
+  user-select: none;
+  margin-left: 0.5px;
+}
+
+.pin-icon:hover {
+  color: #00D100;
+  transform: scale(1.15);
 }
 
 .task-checkbox {
@@ -188,22 +198,22 @@ body {
   font-weight: bold;
 }
 
-.todo-text {
+.task-text {
   flex: 1;
-  font-size: 14px;
+  font-size: 13px;
   color: #ffffff;
   word-break: break-word;
   cursor: text;
 }
 
-.todo-text.completed {
+.task-text.completed {
   text-decoration: line-through;
   text-decoration-thickness: 1px;
   text-decoration-color: rgba(255, 255, 255, 0.4);
   color: #d0d0d0;
 }
 
-.todo-text.editing {
+.task-text.editing {
   background: #1a3d2a;
   border: 1px solid #00D100;
   border-radius: 4px;
@@ -212,19 +222,78 @@ body {
 }
 
 .delete-btn {
-  background: #dc2626;
+  background: transparent;
   border: none;
-  color: white;
-  padding: 6px 12px;
+  color: #dc2626;
+  padding: 6px 1px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 18px;
+  font-weight: bold;
   cursor: pointer;
-  transition: background 0.2s;
-  margin-left: 12px;
+  transition: all 0.2s;
+  margin-left: 1px;
+  line-height: 1;
 }
 
 .delete-btn:hover {
-  background: #b91c1c;
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+.delete-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Task timer controls */
+.task-timer-controls {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.task-timer-display {
+  font-size: 11px;
+  color: #00D100;
+  font-weight: 600;
+  min-width: 45px;
+  text-align: right;
+}
+
+.task-timer-btn {
+  background: transparent;
+  border: 1px solid #00D100;
+  color: #00D100;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+}
+
+.task-timer-btn:hover {
+  background: rgba(0, 209, 0, 0.1);
+}
+
+.task-timer-btn:active {
+  transform: scale(0.95);
+}
+
+.task-timer-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.task-timer-btn.running {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.task-timer-btn.running:hover {
+  background: rgba(220, 38, 38, 0.1);
 }
 
 /* Subtask Section Styles */
@@ -418,7 +487,7 @@ body {
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding-left: 16px;
+  padding-left: 1px;
 }
 
 .add-subtask-inline {

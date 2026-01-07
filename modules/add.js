@@ -1,35 +1,9 @@
-// Add task to today, tomorrow, or others
-export async function addTask(text, type) {
-  const result = await chrome.storage.local.get([type]);
-  const tasks = result[type] || [];
+// Add task to the queue
+export async function addTask(text) {
+  const result = await chrome.storage.local.get(['tasks']);
+  const tasks = result.tasks || [];
   
   const newTask = {
-    id: Date.now().toString(),
-    text: text,
-    completed: false,
-    createdAt: new Date().toISOString()
-  };
-  
-  tasks.push(newTask);
-  await chrome.storage.local.set({ [type]: tasks });
-}
-
-// Add one task (special single task)
-export async function addOneTask(text) {
-  const oneTask = {
-    text: text,
-    createdAt: new Date().toISOString()
-  };
-  
-  await chrome.storage.local.set({ oneTask });
-}
-
-// Add subtask with timer structure
-export async function addSubtask(text) {
-  const result = await chrome.storage.local.get(['subtasks']);
-  const subtasks = result.subtasks || [];
-  
-  const newSubtask = {
     id: Date.now().toString(),
     text: text,
     completed: false,
@@ -41,6 +15,6 @@ export async function addSubtask(text) {
     }
   };
   
-  subtasks.push(newSubtask);
-  await chrome.storage.local.set({ subtasks });
+  tasks.push(newTask);
+  await chrome.storage.local.set({ tasks });
 }

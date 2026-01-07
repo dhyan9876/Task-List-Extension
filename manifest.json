@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Task List - Focus Mode",
+  "name": "One Task Only - To Do and Task List",
   "version": "1.0",
-  "description": "A simple task list built for focus mode",
+  "description": "One Task at a Time!",
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
